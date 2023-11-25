@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spectraent-staging
+  namespace: spectraent
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: spectraent
+  template:
+    metadata:
+      labels:
+        app: spectraent
+    spec:
+      containers:
+        - name: novvsworld
+          image: registry.digitalocean.com/eo-registry/spectraent:latest
+          resources:
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+          ports:
+            - containerPort: 80
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: spectraent-service
+  namespace: spectraent
+spec:
+  selector:
+    app: spectraent
+  ports:
+    - port: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-spectraent
+  namespace: spectraent
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+spec:
+  tls:
+    - hosts:
+        - spectraentertainmentgroup.com
+        - www.spectraentertainmentgroup.com
+        - staging.spectraentertainmentgroup.com
+        - latd.spectraentertainmentgroup.com
+  rules:
+    - host: spectraentertainmentgroup.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: spectraent-service
+                port:
+                  number: 80
