@@ -35,4 +35,4 @@ RUN gatsby build --verbose
 
 EXPOSE 80
 
-CMD npm run deploy
+CMD npm run serve
